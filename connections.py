@@ -2,9 +2,7 @@ import pandas as pd
 import random
 import streamlit as st
 
-# Manually define the word data and categories (instead of CSV)
 def get_manual_data():
-    # Example data in the form of a list of dictionaries, where each dictionary is a row.
     data = [
         ["Earthworm", "Eel", "Salamander", "Slug", "SLIMY ANIMALS"],
         ["Aurora", "Firefly", "Glowstick", "Radium", "THINGS THAT LUMINESCENCE"],
@@ -111,64 +109,53 @@ def get_manual_data():
         ["CLIFF", "PEAK", "ROCK", "VALLEY", "THINGS YOU FIND IN A MOUNTAIN RANGE"],
         ["REACT", "REDO", "REFER", "RETURN", "START WITH 'Re'"],
     ]
-    # Convert to DataFrame for consistency with previous approach
     df = pd.DataFrame(data)
     return df
 
-# Function to fetch 4 random rows from the manually defined data
 def fetch_random_rows_from_manual_data():
     try:
-        # Get the manually defined data
         df = get_manual_data()
         
-        # Ensure the DataFrame has at least 5 columns (4 words + 1 category)
         if len(df.columns) < 5:
             st.error("The data must contain at least 4 word columns and 1 category column.")
             return pd.DataFrame()
 
-        # Randomly select 4 rows
         selected_rows = df.sample(n=4)
         return selected_rows
     except Exception as e:
         st.error(f"An error occurred: {e}")
         return pd.DataFrame()
 
-# Generate the game data dynamically
 def generate_game_data():
     selected_rows = fetch_random_rows_from_manual_data()
     if selected_rows.empty:
         return [], {}
 
-    # Extract words and categories
     words = []
     categories = {}
     for _, row in selected_rows.iterrows():
-        category = row.iloc[-1]  # Last column is the category
-        row_words = row.iloc[:-1].dropna().tolist()  # All columns except the last are words
-        if len(row_words) == 4:  # Ensure there are exactly 4 words
+        category = row.iloc[-1] 
+        row_words = row.iloc[:-1].dropna().tolist()
+        if len(row_words) == 4: 
             words.extend(row_words)
             categories[category] = row_words
 
-    # Shuffle the words
     random.shuffle(words)
     return words, categories
 
-# Streamlit app
 def main():
     st.title("Connections Game")
     st.write("Find groups of 4 related words from the grid.")
     st.write("Click the **New Game** button to start a new game.")
     st.write("Click the **Show Answers** button to reveal the correct groups.")
 
-    # Initialize session state for game data
     if "all_words" not in st.session_state or "categories" not in st.session_state:
         st.session_state.all_words = []
         st.session_state.categories = {}
         st.session_state.found_groups = []
-        st.session_state.selected_indices = set()  # Use a set for toggle functionality
-        st.session_state.group_colors = []  # Track the order of found groups
+        st.session_state.selected_indices = set() 
+        st.session_state.group_colors = []
 
-    # Handle "New Game" button
     if st.button("New Game"):
         st.session_state.all_words, st.session_state.categories = generate_game_data()
         if not st.session_state.all_words:
@@ -178,16 +165,13 @@ def main():
         st.session_state.selected_indices = set()
         st.session_state.group_colors = []
     
-    # Define lighter colors for groups
-    colors = ["#ADD8E6", "#FFFFE0", "#90EE90", "#FFB6C1"]  # Light blue, light yellow, light green, light pink
+    colors = ["#ADD8E6", "#FFFFE0", "#90EE90", "#FFB6C1"] 
 
-    # Display the word grid as clickable boxes
     st.subheader("Word Grid")
-    cols = st.columns(4)  # Create 4 columns for the grid layout
+    cols = st.columns(4)
     for i, word in enumerate(st.session_state.all_words):
-        col = cols[i % 4]  # Place each word in one of the 4 columns
+        col = cols[i % 4]
         if i in [index for group in st.session_state.group_colors for index in group]:
-            # Determine the color based on the group order
             group_index = next((index for index, group in enumerate(st.session_state.group_colors) if i in group), None)
             color = colors[group_index] if group_index is not None else "lightgray"
             col.markdown(
@@ -195,17 +179,13 @@ def main():
                 unsafe_allow_html=True,
             )
         else:
-            # Check if the word is selected
             if i in st.session_state.selected_indices:
-                # Render a red button for selected words
                 if col.button(f"✅ {word}", key=f"selected_{i}"):
-                    st.session_state.selected_indices.remove(i)  # Toggle off
+                    st.session_state.selected_indices.remove(i) 
             else:
-                # Render a normal button for unselected words
                 if col.button(word, key=f"unselected_{i}"):
-                    st.session_state.selected_indices.add(i)  # Toggle on
+                    st.session_state.selected_indices.add(i) 
 
-    # Validate and check user input
     if st.button("Submit"):
         if len(st.session_state.selected_indices) != 4:
             st.error("Please select exactly 4 words.")
@@ -214,20 +194,16 @@ def main():
             for category, words in st.session_state.categories.items():
                 if set(selected_words) == set(words):
                     st.success(f"Correct! The category is '{category}'.")
-                    # Mark the correct words with their group color
                     st.session_state.group_colors.append(list(st.session_state.selected_indices))
                     break
             else:
                 st.error("Incorrect group. Try again.")
-            # Reset selected indices after submission
             st.session_state.selected_indices = set()
 
-    # Check if all words are marked as found
     if len(st.session_state.group_colors) == 4:
         st.success("Congratulations! You found all the groups!")
         st.balloons()
 
-    # Show Answers button
     if st.button("Show Answers"):
         st.subheader("Correct Groups")
         for category, words in st.session_state.categories.items():
