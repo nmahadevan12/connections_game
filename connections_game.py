@@ -104,10 +104,10 @@ def get_manual_data():
         ["Feel", "Grasp", "Hold", "Press", "WORDS RELATED TO TOUCHING"],
         ["Cactus", "Dune", "Oasis", "Sand", "THINGS YOU FIND IN A DESERT"],
         ["Careful", "Fearful", "Helpful", "Wonderful", "END IN 'FUL'"],
-        ["CHAIR", "FENCE", "TABLE", "TOOTHPASTE", "THINGS YOU FIND IN A HOUSE"],
-        ["LISTEN", "NOISE", "SOUND", "VOICE", "WORDS RELATED TO HEARING"],
-        ["CLIFF", "PEAK", "ROCK", "VALLEY", "THINGS YOU FIND IN A MOUNTAIN RANGE"],
-        ["REACT", "REDO", "REFER", "RETURN", "START WITH 'Re'"],
+        ["Chair", "Fence", "Table", "Toothpaste", "THINGS YOU FIND IN A HOUSE"],
+        ["Listen", "Noise", "Sound", "Voice", "WORDS RELATED TO HEARING"],
+        ["Cliff", "Peak", "Rock", "Valey", "THINGS YOU FIND IN A MOUNTAIN RANGE"],
+        ["React", "Redo", "Refer", "Return", "START WITH 'Re'"],
     ]
     df = pd.DataFrame(data)
     return df
